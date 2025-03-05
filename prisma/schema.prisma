@@ -29,10 +29,10 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Course    Course[]
+  course    Course[]
 }
 
-model course {
+model Course {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title     String
   thumbnail String
