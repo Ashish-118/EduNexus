@@ -16,21 +16,39 @@ export default clerkMiddleware(async (auth, req) => {
     const { userId } = await auth();
     const currentURL = new URL(req.url)
     const isAccessingDashboard = currentURL.pathname === "/home"
+
+
     const isApiRequest = currentURL.pathname.startsWith("/api")
 
     // if he is logged in 
-    if (userId && isPublicRoute(req) && !isAccessingDashboard) {
+
+    let signUpCompleted = false;
+    if (typeof window !== "undefined") {
+        console.log("type of window wala hai ye")
+        const part1data = JSON.parse(localStorage.getItem("part1data") || "{}");
+        signUpCompleted = part1data?.signUpCompleted || false;
+    }
+
+    // If user is logged in but hasn't completed signup, allow access to /sign-up
+    if (userId && !signUpCompleted && currentURL.pathname !== "/sign-up") {
+        return NextResponse.redirect(new URL("/sign-up", req.url));
+    }
+
+    if (userId && isPublicRoute(req) && !isAccessingDashboard && signUpCompleted) {
+        console.log("hello")
         return NextResponse.redirect(new URL("/home", req.url))
     }
 
     //if he is not logged in
 
     if (!userId) {
+        console.log("not logged in")
         if (!isPublicRoute(req) && !isPublicApiRoute(req)) {
             return NextResponse.redirect(new URL("/sign-in", req.url))
         }
 
         if (isApiRequest && !isPublicApiRoute(req)) {
+
             return NextResponse.redirect(new URL("/sign-in", req.url))
         }
     }
