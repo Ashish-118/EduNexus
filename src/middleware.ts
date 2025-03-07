@@ -9,7 +9,8 @@ const isPublicRoute = createRouteMatcher([
 ])
 
 const isPublicApiRoute = createRouteMatcher([
-    "/api/course"
+    "/api/course",
+    "/api/store_user"
 ])
 
 export default clerkMiddleware(async (auth, req) => {
@@ -43,13 +44,19 @@ export default clerkMiddleware(async (auth, req) => {
 
     if (!userId) {
         console.log("not logged in")
+        // if (!isPublicRoute(req) ) {
         if (!isPublicRoute(req) && !isPublicApiRoute(req)) {
+
             return NextResponse.redirect(new URL("/sign-in", req.url))
         }
 
         if (isApiRequest && !isPublicApiRoute(req)) {
-
+            console.log("here2")
             return NextResponse.redirect(new URL("/sign-in", req.url))
+        }
+        if (isApiRequest && isPublicApiRoute(req)) {
+            console.log("here3")
+            return NextResponse.next()
         }
     }
     return NextResponse.next()
