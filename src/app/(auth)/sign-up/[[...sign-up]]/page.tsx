@@ -37,23 +37,23 @@ import {
 } from "@/components/ui/select"
 
 
-function selectRole() {
+function SelectRole({ Role, setRole }: { Role: string; setRole: (val: string) => void }) {
     return (
-        <Select>
+        <Select value={Role} onValueChange={setRole}>
             <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select a fruit" />
+                <SelectValue placeholder="Select a role" />
             </SelectTrigger>
             <SelectContent>
                 <SelectGroup>
-                    <SelectLabel>role</SelectLabel>
-                    <SelectItem value="apple">Student</SelectItem>
-                    <SelectItem value="banana">Educator</SelectItem>
-
+                    <SelectLabel>Role</SelectLabel>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="educator">Educator</SelectItem>
                 </SelectGroup>
             </SelectContent>
         </Select>
     )
 }
+
 
 
 function InputOTPPattern({ code, setCode }: { code: string; setCode: (val: string) => void }) {
@@ -81,24 +81,39 @@ export default function Page() {
     const [password, setPassword] = useState('')
     const [pendingVerification, setPendingVerification] = useState(false)
     const [code, setCode] = useState('')
+    const [Role, setRole] = useState('')
+    const [clerkId, setClerkId] = useState('')
     const [error, setError] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [step, setStep] = useState(1);
     const [sessionId, setSessionId] = useState<string | null>(null)
+    const [fullName, setFullName] = useState('')
+    const [username, setUsername] = useState('')
+    const [country, setCountry] = useState('')
+    const [lastName, setLastName] = useState('')
+    const [formData, setFormData] = useState({
+
+        Role: "",
+        firstName: "",
+        lastName: "",
+        username: "",
+    });
 
     const router = useRouter()
 
     useEffect(() => {
-        console.log("visited here")
-        const d = JSON.parse(localStorage.getItem("part1data") || "{}")
-        if (d?.emailAddress) {
-            console.log(d.emailAddress)
-            console.log(d.step)
+        const storedData = localStorage.getItem("part1data");
+        if (storedData) {
+            try {
+                const d = JSON.parse(storedData);
+                if (d.step) setStep(d.step);
+            } catch (error) {
+                console.error("Invalid localStorage data", error);
+            }
         }
+    }, []);
 
-        setStep(d?.step || 1)
 
-    }, [])
     if (!isLoaded) {
         return null;
     }
@@ -110,13 +125,16 @@ export default function Page() {
         }
 
         try {
-            await signUp.create({
+            const user = await signUp.create({
                 emailAddress,
                 password,
             })
             await signUp.prepareEmailAddressVerification({
                 strategy: "email_code"
             })
+            if (user?.id) {
+                setClerkId(user.id)
+            }
             setPendingVerification(true)
         }
         catch (error: any) {
@@ -147,7 +165,8 @@ export default function Page() {
                     emailAddress: emailAddress,
                     password: password,
                     sessionId: sessionId,
-                    signUpCompleted: false
+                    signUpCompleted: false,
+                    clerkId: clerkId
                 }
 
 
@@ -164,11 +183,33 @@ export default function Page() {
         }
     }
 
-
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    async function onSignUp(e: React.FormEvent) {
         e.preventDefault();
-        console.log("Form submitted");
+        const part1data = JSON.parse(localStorage.getItem("part1data") || "{}");
+        console.log(part1data)
+
+
+
+
+    }
+    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const { name, value } = e.target;
+    //     setFormData((prev) => ({
+    //         ...prev,
+    //         [name]: value, // Updates only the specific field
+    //     }));
+    // };
+
+    const handleRoleChange = (val: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            Role: val, // Updates only the Role field
+        }));
     };
+
+
+
+
 
     const BottomGradient = () => {
         return (
@@ -255,26 +296,50 @@ export default function Page() {
                         complete the signUp to Embark a new Journey with AI
                     </p>
 
-                    <form className="my-8" onSubmit={handleSubmit}>
+                    <form className="my-8" onSubmit={onSignUp}>
                         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
                             <LabelInputContainer>
                                 <Label htmlFor="firstname">First name</Label>
-                                <Input id="firstname" placeholder="Tyler" type="text" />
+                                <Input name="firstName" value={formData.firstName} onChange={(e) => {
+                                    console.log("clicked")
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        firstName: e.target.value,
+                                    }))
+                                }
+
+                                } />
                             </LabelInputContainer>
                             <LabelInputContainer>
                                 <Label htmlFor="lastname">Last name</Label>
-                                <Input id="lastname" placeholder="Durden" type="text" />
+                                <Input name="lastName" value={formData.lastName} onChange={(e) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        lastName: e.target.value,
+                                    }))
+                                } />
                             </LabelInputContainer>
                         </div>
                         <LabelInputContainer className="mb-4">
                             <Label htmlFor="">Username</Label>
-                            <Input id="username" placeholder="TylerPro" type="text" />
+                            <Input name="username" value={formData.username} onChange={(e) =>
+
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    username: e.target.value,
+                                }))
+                            } />
+                        </LabelInputContainer>
+
+                        <LabelInputContainer className="mb-4">
+                            <SelectRole Role={formData.Role} setRole={handleRoleChange} />
                         </LabelInputContainer>
 
 
                         <button
                             className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
                             type="submit"
+
                         >
                             Sign up &rarr;
                             <BottomGradient />

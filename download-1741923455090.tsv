@@ -1,0 +1,17 @@
+start	end	text
+0	3300	Let's look at Google interviews and let's see what you can find.
+3300	6300	There is a long building on which there are 100 islands.
+6300	9300	That is, there are hundreds of floors from one to 100.
+9300	12300	Now, there is a special floor called N number.
+12300	15000	If something falls from that floor, it will break.
+15000	18300	But if it falls from the lower floor, it will not break.
+18300	21600	And what we have given is that we have given 2 special undying.
+21600	24800	If we fall from the upper floor, it will break.
+24800	28400	But if it falls from the lower floor, it will not break.
+28500	31500	We have to know that for any value of N,
+31500	35500	if we only use 2 eggs and find out what N is,
+35500	39000	then I will have to fall from the lower floor as many times as possible.
+39000	41000	And then, you will get 1 second of the last one.
+41000	44500	But if you find out before that, then I will comment below and tell you.
+44500	46000	Today, we will meet again in the next video.
+46000	48000	Till then, keep learning and keep exploring.
