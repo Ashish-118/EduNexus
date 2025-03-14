@@ -6,7 +6,7 @@ import fs from "fs";
 import path from "path";
 import util from "util";
 
-const execPromise = util.promisify(exec);
+// const execPromise = util.promisify(exec);
 
 async function transcribeAudio(filePath: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -32,36 +32,22 @@ async function transcribeAudio(filePath: string): Promise<string> {
 
 export async function POST(req: NextRequest) {
     try {
-        const { url, format } = await req.json();
-        if (!url) {
-            return NextResponse.json({ error: "YouTube video URL is required" }, { status: 400 });
-        }
-
-        const fileFormat = format === "audio" ? "mp3" : "mp4";
-        const storageDir = path.join(process.cwd(), "public", "downloads");
-
-
-        if (!fs.existsSync(storageDir)) {
-            fs.mkdirSync(storageDir, { recursive: true });
-        }
-
-        const fileName = `download-${Date.now()}.${fileFormat}`;
-        const filePath = path.join(storageDir, fileName);
-
-
-        const command = `yt-dlp -f ${fileFormat === "mp3" ? "bestaudio" : "best"} -o "${filePath}" "${url}"`;
-        execSync(command);
-
-
+        const { filePath } = await req.json();
         const transcription = await transcribeAudio(filePath);
+        const cleanedText = transcription
+            .replace(/\[.*?\]/g, "")
+            .replace(/\n/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
 
 
         fs.unlinkSync(filePath);
 
         return NextResponse.json({
-            message: "Download and transcription completed",
-            filePath,
-            transcription,
+            message: "transcription completed",
+
+            cleanedText,
+            status: 200
         });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
