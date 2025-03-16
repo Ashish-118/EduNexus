@@ -81,22 +81,20 @@ export default function Page() {
     const [password, setPassword] = useState('')
     const [pendingVerification, setPendingVerification] = useState(false)
     const [code, setCode] = useState('')
-    const [Role, setRole] = useState('')
+
     const [clerkId, setClerkId] = useState('')
     const [error, setError] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [step, setStep] = useState(1);
     const [sessionId, setSessionId] = useState<string | null>(null)
-    const [fullName, setFullName] = useState('')
+    const [firstName, setFirstName] = useState('')
     const [username, setUsername] = useState('')
     const [country, setCountry] = useState('')
     const [lastName, setLastName] = useState('')
-    const [formData, setFormData] = useState({
+    const [role, setRole] = useState({
 
         Role: "",
-        firstName: "",
-        lastName: "",
-        username: "",
+
     });
 
     const router = useRouter()
@@ -112,6 +110,7 @@ export default function Page() {
             }
         }
     }, []);
+
 
 
     if (!isLoaded) {
@@ -187,21 +186,13 @@ export default function Page() {
         e.preventDefault();
         const part1data = JSON.parse(localStorage.getItem("part1data") || "{}");
         console.log(part1data)
-
-
-
+        console.log(username, firstName, lastName, role.Role)
 
     }
-    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const { name, value } = e.target;
-    //     setFormData((prev) => ({
-    //         ...prev,
-    //         [name]: value, // Updates only the specific field
-    //     }));
-    // };
+
 
     const handleRoleChange = (val: string) => {
-        setFormData((prev) => ({
+        setRole((prev) => ({
             ...prev,
             Role: val, // Updates only the Role field
         }));
@@ -220,19 +211,8 @@ export default function Page() {
         );
     };
 
-    const LabelInputContainer = ({
-        children,
-        className,
-    }: {
-        children: React.ReactNode;
-        className?: string;
-    }) => {
-        return (
-            <div className={cn("flex flex-col space-y-2 w-full", className)}>
-                {children}
-            </div>
-        );
-    };
+
+
 
     return (
         <Card className="w-[350px]">
@@ -298,42 +278,33 @@ export default function Page() {
 
                     <form className="my-8" onSubmit={onSignUp}>
                         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
-                            <LabelInputContainer>
+                            <div>
                                 <Label htmlFor="firstname">First name</Label>
-                                <Input name="firstName" value={formData.firstName} onChange={(e) => {
-                                    console.log("clicked")
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        firstName: e.target.value,
-                                    }))
+                                <Input name="firstName" value={firstName} onChange={(e) => {
+
+                                    setFirstName(e.target.value)
                                 }
-
                                 } />
-                            </LabelInputContainer>
-                            <LabelInputContainer>
+                            </div>
+                            <div>
                                 <Label htmlFor="lastname">Last name</Label>
-                                <Input name="lastName" value={formData.lastName} onChange={(e) =>
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        lastName: e.target.value,
-                                    }))
+                                <Input name="lastName" value={lastName} onChange={(e) =>
+
+                                    setLastName(e.target.value)
                                 } />
-                            </LabelInputContainer>
+                            </div>
                         </div>
-                        <LabelInputContainer className="mb-4">
-                            <Label htmlFor="">Username</Label>
-                            <Input name="username" value={formData.username} onChange={(e) =>
-
-                                setFormData((prev) => ({
-                                    ...prev,
-                                    username: e.target.value,
-                                }))
+                        <div className="mb-4">
+                            <Label htmlFor="username">Username</Label>
+                            <Input id="username" value={username} onChange={(e) =>
+                                setUsername(e.target.value)
                             } />
-                        </LabelInputContainer>
+                        </div>
 
-                        <LabelInputContainer className="mb-4">
-                            <SelectRole Role={formData.Role} setRole={handleRoleChange} />
-                        </LabelInputContainer>
+
+                        <div className="mb-4">
+                            <SelectRole Role={role.Role} setRole={handleRoleChange} />
+                        </div>
 
 
                         <button
@@ -356,3 +327,5 @@ export default function Page() {
         </Card>
     )
 }
+
+
