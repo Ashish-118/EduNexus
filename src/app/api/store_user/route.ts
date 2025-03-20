@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 interface UserData {
     email: string;
-    fullName: string;
+    firstName: string;
     lastName: string;
     userName: string;
     role: string;
@@ -20,9 +20,9 @@ interface UserData {
 export async function POST(request: NextRequest) {
     try {
         const body: UserData = await request.json();
-        const { email, fullName, lastName, userName, role, mobileNum, clerkId, country } = body;
+        const { email, firstName, lastName, userName, role, mobileNum, clerkId, country } = body;
 
-        if (!email || !fullName || !lastName || !userName || !role || !clerkId || !country) {
+        if (!email || !firstName || !lastName || !userName || !role || !clerkId) {
             return NextResponse.json({ error: "All fields are required" }, { status: 400 });
         }
 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         const newUser = await prisma.user.create({
             data: {
                 email,
-                fullName,
+                firstName,
                 lastName,
                 userName,
                 role,
@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: "User created successfully", user: newUser }, { status: 200 });
 
     } catch (error: any) {
+
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Empty array  for videos" }, { status: 400 });
         }
 
+
     } catch (error) {
         return NextResponse.json({ error: "error while adding videos to the course" }, { status: 500 })
     }

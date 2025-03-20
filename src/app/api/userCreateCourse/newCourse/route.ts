@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
         const newCourse = await prisma.userCreatedCourse.create({
             data: {
                 title: title,
+
                 user: { connect: { id: userId } },
             }
         });
@@ -37,5 +38,8 @@ export async function POST(req: NextRequest) {
 
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    finally {
+        await prisma.$disconnect();
     }
 }

@@ -8,6 +8,8 @@ import {
     InputOTPSlot,
 } from "@/components/ui/input-otp"
 import { cn } from "@/lib/utils";
+import { useUser, useClerk } from "@clerk/nextjs";
+
 
 import { SignUp } from '@clerk/nextjs'
 import { useSignUp } from '@clerk/nextjs'
@@ -46,8 +48,8 @@ function SelectRole({ Role, setRole }: { Role: string; setRole: (val: string) =>
             <SelectContent>
                 <SelectGroup>
                     <SelectLabel>Role</SelectLabel>
-                    <SelectItem value="student">Student</SelectItem>
-                    <SelectItem value="educator">Educator</SelectItem>
+                    <SelectItem value="Student">Student</SelectItem>
+                    <SelectItem value="Educator">Educator</SelectItem>
                 </SelectGroup>
             </SelectContent>
         </Select>
@@ -76,6 +78,8 @@ function InputOTPPattern({ code, setCode }: { code: string; setCode: (val: strin
     )
 }
 export default function Page() {
+
+
     const { isLoaded, signUp, setActive } = useSignUp()
     const [emailAddress, setEmailAddress] = useState('')
     const [password, setPassword] = useState('')
@@ -97,6 +101,7 @@ export default function Page() {
 
     });
 
+    const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
     const router = useRouter()
 
     useEffect(() => {
@@ -157,13 +162,13 @@ export default function Page() {
             }
 
             if (completePart1.status === "complete") {
-                //     await setActive({ session: completePart1.createdSessionId })
+
                 setSessionId(completePart1?.createdSessionId)
                 const part1DATA = {
                     step: 2,
                     emailAddress: emailAddress,
                     password: password,
-                    sessionId: sessionId,
+                    sessionId: completePart1?.createdSessionId,
                     signUpCompleted: false,
                     clerkId: clerkId
                 }
@@ -172,6 +177,8 @@ export default function Page() {
                 localStorage.setItem("part1data", JSON.stringify(part1DATA))
                 console.log("visited here at complete ")
                 setStep(2)
+                document.cookie = "signupComplete=false; path=/";
+
 
             }
 
@@ -185,9 +192,26 @@ export default function Page() {
     async function onSignUp(e: React.FormEvent) {
         e.preventDefault();
         const part1data = JSON.parse(localStorage.getItem("part1data") || "{}");
-        console.log(part1data)
+        // console.log(part1data)
         console.log(username, firstName, lastName, role.Role)
+        const R = role.Role;
+        const email = part1data.emailAddress;
+        const clerkId = part1data.clerkId;
+        const response = await fetch(`${BASE_URL}/api/store_user`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userName: username, firstName, lastName, role: R, email, clerkId }),
+        });
+        console.log(response);
+        if (response.status === 200) {
 
+            if (setActive) {
+                await setActive({ session: part1data.sessionId });
+                document.cookie = "signupComplete=true; path=/";
+
+                localStorage.clear();
+            }
+        }
     }
 
 
