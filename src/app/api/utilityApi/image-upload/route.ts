@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { auth } from "@clerk/nextjs/server"
-
+import { currentUser } from '@clerk/nextjs/server'
 cloudinary.config({
     cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
@@ -18,6 +18,7 @@ interface cloudinaryUploadResult {
 export async function POST(req: NextRequest) {
 
     try {
+
         const { userId } = await auth();
 
 

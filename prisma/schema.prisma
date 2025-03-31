@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,23 +9,24 @@ datasource db {
 
 model User {
   id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userName          String              @unique
-  firstName         String
-  lastName          String
   clerkId           String              @unique
   email             String              @unique
   mobileNum         String?             @unique
   isAdmin           Boolean             @default(false)
   avatarUrl         String?
   userCoins         Int?                @default(0)
-  role              String
   aadharCardUrl     String?
   certificateUrl    String[]
-  country           String?             @default("")
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
+  country           String?             @default("")
+  lastName          String
+  userName          String              @unique
+  role              String
+  firstName         String
   course            Course[]
   userCreatedCourse userCreatedCourse[]
+  signUpCompleted   Boolean             @default(false)
 }
 
 model Course {
@@ -41,10 +36,10 @@ model Course {
   like      Int      @default(0)
   dislike   Int      @default(0)
   adminId   String   @db.Uuid
-  user      User     @relation(fields: [adminId], references: [id])
-  videos    Video[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [adminId], references: [id])
+  videos    Video[]
 }
 
 model Video {
@@ -71,10 +66,10 @@ model Vnotes {
 model userCreatedCourse {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
   title     String   @unique
   resources String[]
-  content   Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  content   Json?
+  user      User     @relation(fields: [userId], references: [id])
 }

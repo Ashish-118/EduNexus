@@ -8,7 +8,7 @@ import {
     InputOTPSlot,
 } from "@/components/ui/input-otp"
 import { cn } from "@/lib/utils";
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useUser, useClerk, useAuth } from "@clerk/nextjs";
 
 
 import { SignUp } from '@clerk/nextjs'
@@ -79,7 +79,7 @@ function InputOTPPattern({ code, setCode }: { code: string; setCode: (val: strin
 }
 export default function Page() {
 
-
+    const { userId, sessionId } = useAuth();
     const { isLoaded, signUp, setActive } = useSignUp()
     const [emailAddress, setEmailAddress] = useState('')
     const [password, setPassword] = useState('')
@@ -90,7 +90,7 @@ export default function Page() {
     const [error, setError] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [step, setStep] = useState(1);
-    const [sessionId, setSessionId] = useState<string | null>(null)
+    // const [sessionId, setSessionId] = useState<string | null>(null)
     const [firstName, setFirstName] = useState('')
     const [username, setUsername] = useState('')
     const [country, setCountry] = useState('')
@@ -136,9 +136,10 @@ export default function Page() {
             await signUp.prepareEmailAddressVerification({
                 strategy: "email_code"
             })
-            if (user?.id) {
-                setClerkId(user.id)
-            }
+            console.log("User signed up:", user)
+            // if (user?.createdUserId) {
+            //     setClerkId(user.createdUserId)
+            // }
             setPendingVerification(true)
         }
         catch (error: any) {
@@ -155,29 +156,28 @@ export default function Page() {
 
         try {
             const completePart1 = await signUp.attemptEmailAddressVerification({ code })
-            console.log(completePart1)
+            console.log("a complet part 1", completePart1)
             if (completePart1.status !== "complete") {
                 console.log(JSON.stringify(completePart1, null, 2))
 
             }
 
             if (completePart1.status === "complete") {
+                await setActive({ session: completePart1?.createdSessionId });
 
-                setSessionId(completePart1?.createdSessionId)
                 const part1DATA = {
                     step: 2,
                     emailAddress: emailAddress,
-                    password: password,
-                    sessionId: completePart1?.createdSessionId,
-                    signUpCompleted: false,
-                    clerkId: clerkId
+
+                    // sessionId: completePart1?.createdSessionId,
+                    // clerkId: clerkId
                 }
 
 
                 localStorage.setItem("part1data", JSON.stringify(part1DATA))
                 console.log("visited here at complete ")
                 setStep(2)
-                document.cookie = "signupComplete=false; path=/";
+
 
 
             }
@@ -192,25 +192,26 @@ export default function Page() {
     async function onSignUp(e: React.FormEvent) {
         e.preventDefault();
         const part1data = JSON.parse(localStorage.getItem("part1data") || "{}");
-        // console.log(part1data)
+
         console.log(username, firstName, lastName, role.Role)
         const R = role.Role;
         const email = part1data.emailAddress;
-        const clerkId = part1data.clerkId;
+        // const clerkId = part1data.clerkId;
+
         const response = await fetch(`${BASE_URL}/api/store_user`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userName: username, firstName, lastName, role: R, email, clerkId }),
+            body: JSON.stringify({ userName: username, firstName, lastName, role: R, email }),
         });
-        console.log(response);
+        console.log("response of page ", response);
         if (response.status === 200) {
 
-            if (setActive) {
-                await setActive({ session: part1data.sessionId });
-                document.cookie = "signupComplete=true; path=/";
+            // if (setActive) {
+            // await setActive({ session: sessionId });
 
-                localStorage.clear();
-            }
+
+            localStorage.clear();
+            // }
         }
     }
 
