@@ -65,9 +65,6 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
 
 
-            // if (signUpCompleted && (currentURL.pathname === "/sign-in" || !isPublicRoute(req))) {
-            //     return NextResponse.redirect(new URL("/sign-up", req.url));
-            // }
 
             if (signUpCompleted) {
 
@@ -79,6 +76,11 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
                 if (currentURL.pathname === "/sign-in" || currentURL.pathname === "/sign-up") {
                     return NextResponse.redirect(new URL("/home", req.url));
+                }
+            }
+            else {
+                if ((currentURL.pathname === "/sign-in" || !isPublicRoute(req))) {
+                    return NextResponse.redirect(new URL("/sign-up", req.url));
                 }
             }
 

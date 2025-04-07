@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
         if (!userId) {
             return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
         }
-        console.log("User ID api:", userId);
+        console.log("User ID api getuse:", userId);
         const user = await prisma.user.findUnique({
             where: {
                 clerkId: userId,
